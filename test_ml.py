@@ -1,28 +1,44 @@
 import pytest
-# TODO: add necessary import
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from ml.model import train_model, compute_model_metrics
+from ml.data import process_data
 
-# TODO: implement the first test. Change the function name and input as needed
-def test_one():
+# Test 1: Ensure train_model returns a scikit-learn LogisticRegression instance
+def test_model_training_returns_logistic_regression():
     """
-    # add description for the first test
+    Test that train_model returns a LogisticRegression model object.
     """
-    # Your code here
-    pass
+    data = pd.read_csv("data/census.csv")
+    cat_features = [
+        "workclass", "education", "marital-status", "occupation",
+        "relationship", "race", "sex", "native-country"
+    ]
+    X, y, _, _ = process_data(data, categorical_features=cat_features, label="salary", training=True)
+    model = train_model(X, y)
+    assert isinstance(model, LogisticRegression)
 
+# Test 2: Ensure compute_model_metrics outputs expected values for a known case
+def test_model_metrics_computation():
+    """
+    Test compute_model_metrics returns correct metrics for known inputs.
+    """
+    y_true = [1, 0, 1, 1]
+    y_pred = [1, 0, 0, 1]
+    precision, recall, fbeta = compute_model_metrics(y_true, y_pred)
+    assert round(precision, 2) == 1.0
+    assert round(recall, 2) == 0.67
+    assert round(fbeta, 2) == 0.80
 
-# TODO: implement the second test. Change the function name and input as needed
-def test_two():
+# Test 3: Ensure processed data returns the correct shape
+def test_processed_data_shapes_match():
     """
-    # add description for the second test
+    Test that X and y from process_data have matching lengths.
     """
-    # Your code here
-    pass
-
-
-# TODO: implement the third test. Change the function name and input as needed
-def test_three():
-    """
-    # add description for the third test
-    """
-    # Your code here
-    pass
+    data = pd.read_csv("data/census.csv")
+    cat_features = [
+        "workclass", "education", "marital-status", "occupation",
+        "relationship", "race", "sex", "native-country"
+    ]
+    X, y, _, _ = process_data(data, categorical_features=cat_features, label="salary", training=True)
+    assert X.shape[0] == y.shape[0]
